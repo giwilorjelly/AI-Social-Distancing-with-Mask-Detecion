@@ -1,6 +1,7 @@
 # AI-Social-Distancing-with-Mask-Detecion
 This is a Social Distancing Project where you can measure distance between two faces and also check whether they're wearing masks or not. 
 
+![GitHub](https://img.shields.io/github/license/giwilorjelly/AI-Social-Distancing-with-Mask-Detecion)
 
 For this project you'll need the following dependencies:
 1. TensorFlow
