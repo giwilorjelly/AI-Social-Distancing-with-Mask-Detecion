@@ -27,9 +27,9 @@ def speak(str):
 
 '''
 
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
 #cap = cv2.VideoCapture(1)
-#cap = cv2.VideoCapture('sample.mp4')
+cap = cv2.VideoCapture('sample.mp4')
 
 
 frame_width = int(cap.get(3)) 
@@ -42,7 +42,11 @@ vw = cv2.VideoWriter('output.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 40, size)
 #face_model = cv2.CascadeClassifier(os.path.join(os.getcwd(),'haarcascade_frontalface_default.xml')) 
 face_model = cv2.CascadeClassifier(os.path.join(os.getcwd(),'lbpcascade_frontalface_improved.xml')) 
 
-maskNet=load_model(os.path.join(os.getcwd(),'mobilenet_v2.model'))
+#maskNet=load_model(os.path.join(os.getcwd(),'mobilenet_v2.model'))
+interpreter = tf.lite.Interpreter(model_path="model.tflite")
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()      
 
 labels_dict={0:'MASK',1:'NO MASK'}
 
@@ -71,8 +75,12 @@ while cap.isOpened():
         face_img=cv2.resize(face_img,(224,224))
         face_img=img_to_array(face_img)
         reshaped=np.reshape(face_img/255,(1,224,224,3))
-        result=maskNet.predict(reshaped)
-        label=0 if result[0][0]>0.8 else 1
+        #result=maskNet.predict(reshaped)
+        interpreter.set_tensor(input_details[0]['index'], reshaped)
+        interpreter.invoke()
+        result = interpreter.get_tensor(output_details[0]['index'])
+        label=np.argmax(result[0])
+        #print(result)
       
         cv2.rectangle(frame,(x,y),(x+w,y+h),color_dict[label],2)
         cv2.rectangle(frame,(x,y-40),(x+w,y),color_dict[label],-1)
